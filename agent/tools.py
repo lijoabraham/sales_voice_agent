@@ -1,39 +1,39 @@
+import json
 from livekit.agents import function_tool, RunContext
-from .schema import pretty_print_lead
 
 @function_tool()
 async def submit_lead(
     context: RunContext,
-    child_name: str | None,
     child_class: str,
     subjects: str,
-    exam_info: str | None,
-    budget_range: str | None,
-    decision_maker: str | None,
-    timeline: str | None,
-    urgency: str | None,
     contact_phone: str,
+    exam_info: str | None = None,
+    budget_range: str | None = None,
+    decision_maker: str | None = None,
+    timeline: str | None = None,
+    urgency: str | None = None,
 ):
     # Get conversation_id for tracking - try multiple sources
     conversation_id = None
+    
+    # First try to get from agent instance (primary source - set in entrypoint.py)
     try:
-        # First try to get from agent instance
         if hasattr(context.agent, 'conversation_id'):
             conversation_id = context.agent.conversation_id
     except (AttributeError, TypeError):
         pass
     
-    # Fallback: try to get from session userdata
+    # Fallback: try to get from session userdata (if available)
     if not conversation_id:
         try:
+            # Accessing userdata raises ValueError if not set, so catch that
             conversation_id = context.session.userdata.get("conversation_id")
         except (ValueError, AttributeError, TypeError):
-            # userdata not set or not available
+            # userdata is not set or not available, continue with None
             pass
     
     lead = {
         "conversation_id": conversation_id,
-        "child_name": child_name,
         "child_class": child_class,
         "subjects": subjects,
         "exam_info": exam_info,
@@ -52,7 +52,7 @@ async def submit_lead(
         # The lead is still printed below
         pass
     # Store the lead in the database/CRM
-    pretty_print_lead(lead)
+    print(json.dumps(lead, indent=2, ensure_ascii=False))
 
     return {
         "status": "ok",
