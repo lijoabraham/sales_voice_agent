@@ -170,59 +170,9 @@ The system follows a real-time voice agent architecture with the following compo
 
 ### Workflow
 
-1. **Initialization Phase**
-   - Agent worker starts and connects to LiveKit server
-   - Worker registers with LiveKit and waits for job assignments
-   - OpenAI Realtime model is initialized with voice configuration
-
-2. **Connection Phase**
-   - Client (parent) connects to LiveKit room using access token
-   - LiveKit assigns the agent worker to handle the connection
-   - Entrypoint function is invoked with job context
-
-3. **Session Setup**
-   - Conversation ID is extracted from room metadata or generated
-   - Agent session is created with OpenAI Realtime LLM
-   - EdTechBANTAgent instance is initialized with system prompt and tools
-   - Event handlers are registered for conversation items and metrics
-
-4. **Conversation Phase**
-   - Agent greets the parent and begins BANT qualification
-   - Real-time bidirectional voice communication:
-     - Parent's speech → LiveKit → Agent Worker → OpenAI Realtime API
-     - OpenAI response → Agent Worker → LiveKit → Parent's audio
-   - Conversation items are logged as they're added
-   - Agent collects required information through natural dialogue
-
-5. **Lead Capture Phase**
-   - Once all required fields are collected, agent calls `submit_lead` tool
-   - Lead data is structured with conversation ID for tracking
-   - Lead information is printed as JSON (can be integrated with CRM/database)
-   - Lead is stored in session userdata for potential retrieval
-
-6. **Completion Phase**
-   - Agent wraps up conversation with thank you message
-   - Usage metrics (LLM tokens) are collected and logged
-   - Session closes when client disconnects
-   - Conversation ID enables tracking and follow-up
-
-### Workflow Flow
 ![Workflow Diagram](sales_agent.webp)
 
 ### Key Interactions
-
-- **LiveKit**: Handles WebRTC connections, room management, and media streaming
-- **OpenAI Realtime API**: Provides voice-to-voice AI capabilities with low latency
-- **Agent Session**: Manages conversation state, tool execution, and event handling
-- **BANT Agent**: Implements sales qualification logic through conversational AI
-- **Token Generator**: Creates secure access tokens for room authentication
-
-### Event Handling
-
-- `ConversationItemAddedEvent`: Logs each conversation turn (user/assistant messages)
-- `MetricsCollectedEvent`: Tracks LLM token usage for cost monitoring
-- `Session Close`: Finalizes metrics collection and cleanup
-
 
 1. **Introduction**: Agent introduces itself as a friendly voice assistant from the EdTech company
 2. **Information Gathering**: Agent asks about:
